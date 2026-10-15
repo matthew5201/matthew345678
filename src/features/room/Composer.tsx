@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { PaperclipIcon, SendIcon, SmileIcon } from '../../components/icons'
 import { supabase } from '../../lib/supabase'
 import { MAX_FILE_BYTES, formatSize, safeStorageName } from '../../lib/format'
 import type { Message } from '../../lib/types'
@@ -10,6 +11,9 @@ const EMOJIS = [
   '👍', '👎', '👏', '🙏', '💪', '👀', '🔥', '❤️', '💔', '🎉', '✨', '💯',
   '🍻', '☕', '🍕', '🐶', '🐱', '🌈', '⭐', '✅', '❌', '❓', '❗', '💤',
 ]
+
+const iconBtn =
+  'flex size-11 shrink-0 items-center justify-center rounded-xl text-ink2 hover:bg-surface2 disabled:opacity-40'
 
 export function Composer({ roomId, onSent }: { roomId: string; onSent: (m: Message) => void }) {
   const [text, setText] = useState('')
@@ -87,20 +91,23 @@ export function Composer({ roomId, onSent }: { roomId: string; onSent: (m: Messa
   }
 
   return (
-    <div className="relative border-t border-slate-200 bg-white px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+    <div className="relative border-t border-line bg-surface px-2.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-6 sm:py-3">
       {error && (
-        <p className="mb-2 rounded-lg bg-red-50 px-3 py-1.5 text-sm text-red-700" role="alert">
+        <p
+          role="alert"
+          className="mb-2 rounded-[0.625rem] border border-danger-line bg-danger-bg px-3 py-2 text-sm leading-normal text-danger-ink"
+        >
           {error}
         </p>
       )}
 
       {showEmoji && (
-        <div className="absolute bottom-full left-3 mb-1 grid grid-cols-6 gap-1 rounded-xl bg-white p-2 shadow-lg ring-1 ring-slate-200 sm:grid-cols-12">
+        <div className="absolute inset-x-2.5 bottom-full mb-1 grid grid-cols-6 gap-1 rounded-2xl border border-line bg-surface2 p-2 shadow-lg sm:inset-x-auto sm:left-6 sm:w-[28rem] sm:grid-cols-9">
           {EMOJIS.map((e) => (
             <button
               key={e}
               onClick={() => insertEmoji(e)}
-              className="rounded p-1 text-xl hover:bg-slate-100"
+              className="h-11 rounded-[0.625rem] text-2xl hover:bg-line"
               aria-label={`插入 ${e}`}
             >
               {e}
@@ -109,22 +116,17 @@ export function Composer({ roomId, onSent }: { roomId: string; onSent: (m: Messa
         </div>
       )}
 
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-1.5">
         <button
           onClick={() => setShowEmoji((v) => !v)}
-          className="rounded-lg p-2 text-xl hover:bg-slate-100"
+          className={`${iconBtn} ${showEmoji ? 'bg-line text-rose-soft' : ''}`}
           aria-label="表情符號"
           aria-expanded={showEmoji}
         >
-          😊
+          <SmileIcon />
         </button>
-        <button
-          onClick={() => fileRef.current?.click()}
-          disabled={busy}
-          className="rounded-lg p-2 text-xl hover:bg-slate-100 disabled:opacity-40"
-          aria-label="傳送圖片或檔案"
-        >
-          📎
+        <button onClick={() => fileRef.current?.click()} disabled={busy} className={iconBtn} aria-label="傳送圖片或檔案">
+          <PaperclipIcon />
         </button>
         <input
           ref={fileRef}
@@ -136,7 +138,11 @@ export function Composer({ roomId, onSent }: { roomId: string; onSent: (m: Messa
             if (f) void sendFile(f)
           }}
         />
+        <label htmlFor="msg" className="sr-only">
+          訊息內容
+        </label>
         <textarea
+          id="msg"
           ref={textRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -149,15 +155,16 @@ export function Composer({ roomId, onSent }: { roomId: string; onSent: (m: Messa
           }}
           rows={1}
           maxLength={4000}
-          placeholder="輸入訊息（Enter 送出，Shift+Enter 換行）"
-          className="max-h-32 min-h-10 flex-1 resize-none rounded-lg border border-slate-300 px-3 py-2 text-base outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+          placeholder="輸入訊息"
+          className="max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-[1.375rem] border border-line bg-bg px-4 py-2.5 text-base text-ink outline-none placeholder:text-muted/70 focus:border-rose focus:ring-[3px] focus:ring-rose/20"
         />
         <button
           onClick={sendText}
           disabled={busy || !text.trim()}
-          className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white enabled:hover:bg-indigo-700 disabled:opacity-40"
+          aria-label="送出"
+          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-rose text-rose-ink enabled:hover:brightness-110 disabled:bg-line disabled:text-muted"
         >
-          送出
+          <SendIcon />
         </button>
       </div>
     </div>

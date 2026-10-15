@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { FileIcon } from '../../components/icons'
 import { supabase } from '../../lib/supabase'
 import { formatSize } from '../../lib/format'
 import type { Message } from '../../lib/types'
@@ -33,15 +34,19 @@ export function Attachment({ message }: { message: Message }) {
   // 圖片行內預覽；其他一律當成下載，不在頁面內執行／渲染
   const { url, failed } = useSignedUrl(message.file_path, isImage ? undefined : name)
 
-  if (failed) return <span className="text-sm opacity-70">（檔案無法載入）</span>
+  if (failed) return <span className="text-sm opacity-80">（檔案無法載入）</span>
 
   if (isImage) {
     return url ? (
       <a href={url} target="_blank" rel="noopener noreferrer">
-        <img src={url} alt={name} loading="lazy" className="max-h-72 max-w-full rounded-lg object-contain" />
+        <img src={url} alt={name} loading="lazy" className="max-h-72 max-w-full rounded-[0.875rem] object-contain" />
       </a>
     ) : (
-      <div className="h-32 w-48 animate-pulse rounded-lg bg-black/10" />
+      <div
+        role="img"
+        aria-label="圖片載入中"
+        className="h-32 w-48 animate-pulse rounded-[0.875rem] bg-gradient-to-r from-line via-[#4d2f4a] to-line"
+      />
     )
   }
 
@@ -50,12 +55,12 @@ export function Attachment({ message }: { message: Message }) {
       href={url ?? undefined}
       download={name}
       rel="noopener noreferrer"
-      className="flex items-center gap-3 rounded-lg bg-black/5 px-3 py-2 no-underline"
+      className="flex items-center gap-3 rounded-xl bg-black/10 px-3 py-2.5 no-underline"
     >
-      <span className="text-2xl">📄</span>
-      <span className="min-w-0">
-        <span className="block truncate text-sm font-medium">{name}</span>
-        <span className="block text-xs opacity-70">
+      <FileIcon />
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate text-sm font-bold">{name}</span>
+        <span className="text-xs opacity-80">
           {message.file_size != null ? formatSize(message.file_size) : ''} · 點擊下載
         </span>
       </span>

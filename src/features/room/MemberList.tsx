@@ -8,21 +8,34 @@ interface Props {
 
 export function MemberList({ members, present, selfId }: Props) {
   return (
-    <ul className="flex flex-col gap-1">
+    <ul className="flex flex-col gap-0.5">
       {members.map((m) => {
         const self = m.user_id === selfId
         const online = self || present.has(m.user_id)
         return (
-          <li key={m.user_id} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm">
+          <li
+            key={m.user_id}
+            className={`flex min-h-12 items-center gap-3 rounded-xl px-2 ${self ? 'bg-surface2' : ''}`}
+          >
             <span
-              className={`h-2.5 w-2.5 shrink-0 rounded-full ${online ? 'bg-emerald-500' : 'bg-slate-300'}`}
               aria-hidden
+              className={`box-border size-2.5 shrink-0 rounded-full ${
+                online ? 'bg-online' : 'border-2 border-[#9a7392]'
+              }`}
             />
-            <span className={`min-w-0 truncate ${online ? 'text-slate-800' : 'text-slate-400'}`}>
+            <span
+              className={`min-w-0 flex-1 truncate text-[0.9375rem] ${
+                online ? (self ? 'font-medium text-ink' : 'text-ink') : 'text-muted'
+              }`}
+            >
               {m.nickname}
               {self && '（你）'}
             </span>
-            {!online && <span className="ml-auto shrink-0 text-xs text-slate-400">斷線中</span>}
+            {online ? (
+              <span className="shrink-0 text-xs text-online sm:hidden">在線</span>
+            ) : (
+              <span className="shrink-0 rounded-full border border-line2 px-2 py-0.5 text-xs text-muted">斷線中</span>
+            )}
           </li>
         )
       })}

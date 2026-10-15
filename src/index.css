@@ -1,10 +1,51 @@
 @import 'tailwindcss';
 
+/* 配色：深酒紅底 + 玫瑰粉（來自畫面設計稿） */
+@theme {
+  --color-page: #0d060b;
+  --color-bg: #160c14;
+  --color-surface: #221220;
+  --color-surface2: #301a2c;
+  --color-line: #432640;
+  --color-line2: #5a3556;
+  --color-ink: #f8eaf0;
+  --color-ink2: #e2c9d6;
+  --color-ink3: #d3b6c6;
+  --color-muted: #b895a9;
+  --color-rose: #f08ca4;
+  --color-rose-ink: #3a0d1c;
+  --color-rose-soft: #ffb3c6;
+  --color-rose-deep: #b4506b;
+  --color-danger: #ff7a85;
+  --color-danger-ink: #ffb4ac;
+  --color-danger-bg: #3b1a1d;
+  --color-danger-line: #6b2a2f;
+  --color-warn: #f5d37a;
+  --color-warn-bg: #3a2f0b;
+  --color-warn-line: #6b5a1a;
+  --color-online: #3ddc84;
+  --font-sans: 'Noto Sans TC', system-ui, -apple-system, 'Segoe UI', 'PingFang TC', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
 html,
 body,
 #root {
   min-height: 100dvh;
-  background: #f8fafc;
-  font-family: system-ui, -apple-system, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', sans-serif;
-  color: #1e293b;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  color-scheme: dark;
+}
+
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-rose);
+  outline-offset: 2px;
 }

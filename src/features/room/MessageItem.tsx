@@ -22,7 +22,7 @@ export function MessageItem({ message, mine, onShowHistory }: Props) {
   if (message.kind === 'system') {
     const verb = message.content === 'leave' ? '離開了房間' : '加入了房間'
     return (
-      <div className="my-1 text-center text-xs text-slate-400">
+      <div className="text-center text-xs text-muted">
         {message.nickname} {verb} · {formatTime(message.created_at)}
       </div>
     )
@@ -75,14 +75,19 @@ export function MessageItem({ message, mine, onShowHistory }: Props) {
 
   return (
     <div className={`flex flex-col gap-0.5 ${mine ? 'items-end' : 'items-start'}`}>
-      <div className="flex items-baseline gap-2 px-1 text-xs text-slate-500">
-        {!mine && <span className="font-medium text-slate-600">{message.nickname}</span>}
+      <div className="flex items-baseline gap-2 px-1 text-xs text-muted">
+        {!mine && <span className="font-medium text-ink2">{message.nickname}</span>}
         <span>{formatTime(message.created_at)}</span>
+        {editing && <span>· 編輯中</span>}
       </div>
 
       {editing ? (
-        <div className="flex w-full max-w-[85%] flex-col gap-2 rounded-2xl bg-white p-2 shadow ring-1 ring-indigo-300 sm:max-w-[70%]">
+        <div className="flex w-full max-w-[85%] flex-col gap-2.5 rounded-[1.125rem] border border-rose bg-surface p-2.5 shadow-[0_0_0_3px_rgba(240,140,164,0.22)] sm:max-w-[70%]">
+          <label htmlFor={`edit-${message.id}`} className="sr-only">
+            編輯訊息
+          </label>
           <textarea
+            id={`edit-${message.id}`}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
@@ -96,17 +101,24 @@ export function MessageItem({ message, mine, onShowHistory }: Props) {
             rows={Math.min(6, draft.split('\n').length + 1)}
             maxLength={4000}
             autoFocus
-            className="w-full resize-none rounded-lg border border-slate-200 p-2 text-base outline-none focus:border-indigo-400"
+            className="w-full resize-none rounded-xl border border-line bg-bg px-3 py-2.5 text-base leading-normal text-ink outline-none focus:border-rose"
           />
-          {error && <p className="text-xs text-red-600">{error}</p>}
-          <div className="flex justify-end gap-2 text-sm">
-            <button onClick={() => setEditing(false)} className="rounded px-3 py-1 text-slate-600 hover:bg-slate-100">
+          {error && (
+            <p role="alert" className="text-[0.8125rem] text-danger">
+              {error}
+            </p>
+          )}
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setEditing(false)}
+              className="h-11 rounded-xl px-4.5 text-[0.9375rem] text-ink2 hover:bg-surface2"
+            >
               取消
             </button>
             <button
               onClick={save}
               disabled={saving || !draft.trim()}
-              className="rounded bg-indigo-600 px-3 py-1 text-white disabled:opacity-40"
+              className="h-11 rounded-xl bg-rose px-5.5 text-[0.9375rem] font-bold text-rose-ink disabled:opacity-40"
             >
               儲存
             </button>
@@ -116,39 +128,42 @@ export function MessageItem({ message, mine, onShowHistory }: Props) {
         <div
           {...historyHandlers}
           title={edited ? '長按或按右鍵可查看編輯前的版本' : undefined}
-          className={`max-w-[85%] select-text break-words rounded-2xl px-3 py-2 sm:max-w-[70%] ${
+          className={`max-w-[85%] select-text break-words px-3.5 py-2.5 text-[0.9375rem] leading-normal sm:max-w-[70%] ${
+            message.kind === 'text' ? '' : '!p-1.5'
+          } ${
             mine
-              ? 'rounded-br-md bg-indigo-600 text-white'
-              : 'rounded-bl-md bg-white text-slate-800 shadow-sm ring-1 ring-slate-200'
+              ? 'rounded-[1.125rem_1.125rem_0.375rem_1.125rem] bg-rose font-medium text-rose-ink'
+              : 'rounded-[1.125rem_1.125rem_1.125rem_0.375rem] bg-surface2 text-ink'
           } ${edited ? '[-webkit-touch-callout:none]' : ''}`}
         >
-          {message.kind === 'text' ? (
-            <p className="whitespace-pre-wrap">{message.content}</p>
-          ) : (
-            <Attachment message={message} />
-          )}
+          {message.kind === 'text' ? <p className="whitespace-pre-wrap">{message.content}</p> : <Attachment message={message} />}
         </div>
       )}
 
-      <div className="flex gap-2 px-1 text-xs text-slate-400">
-        {edited && !editing && (
-          <button onClick={() => onShowHistory(message)} className="underline-offset-2 hover:underline">
-            已編輯
-          </button>
-        )}
-        {canEdit && !editing && (
-          <button
-            onClick={() => {
-              setDraft(message.content)
-              setError(null)
-              setEditing(true)
-            }}
-            className="underline-offset-2 hover:text-indigo-600 hover:underline"
-          >
-            編輯
-          </button>
-        )}
-      </div>
+      {!editing && (edited || canEdit) && (
+        <div className="flex gap-2.5 px-1 text-xs text-muted">
+          {edited && (
+            <button
+              onClick={() => onShowHistory(message)}
+              className="py-1 underline underline-offset-2 hover:text-ink2"
+            >
+              已編輯
+            </button>
+          )}
+          {canEdit && (
+            <button
+              onClick={() => {
+                setDraft(message.content)
+                setError(null)
+                setEditing(true)
+              }}
+              className="py-1 text-rose-soft hover:underline"
+            >
+              編輯
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

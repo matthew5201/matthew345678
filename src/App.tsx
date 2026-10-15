@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { AlertIcon, ChatIcon, WifiOffIcon } from './components/icons'
 import { ApiError, joinRoom } from './lib/api'
 import { clearSavedRoom, loadSavedRoom, saveRoom } from './lib/session'
 import { configured, ensureAnonymousSession } from './lib/supabase'
@@ -8,7 +9,7 @@ import { RoomPage } from './features/room/RoomPage'
 
 type State =
   | { view: 'loading' }
-  | { view: 'fatal'; text: string }
+  | { view: 'fatal'; kind: 'config' | 'network'; title: string; text: string }
   | { view: 'entry'; notice?: string }
   | { view: 'room'; room: JoinResult }
 
@@ -20,7 +21,9 @@ export default function App() {
     if (!configured) {
       setState({
         view: 'fatal',
-        text: '尚未設定 Supabase：請複製 .env.example 為 .env 並填入 VITE_SUPABASE_URL 與 VITE_SUPABASE_ANON_KEY。',
+        kind: 'config',
+        title: '尚未設定 Supabase',
+        text: '請複製 .env.example 為 .env，並填入 VITE_SUPABASE_URL 與 VITE_SUPABASE_ANON_KEY。',
       })
       return
     }
@@ -53,7 +56,13 @@ export default function App() {
         }
         setState({ view: 'entry' })
       } catch {
-        if (alive) setState({ view: 'fatal', text: '無法連線到伺服器，請檢查網路後重新整理頁面。' })
+        if (alive)
+          setState({
+            view: 'fatal',
+            kind: 'network',
+            title: '無法連線',
+            text: '無法連線到伺服器，請檢查網路後重新整理頁面。',
+          })
       }
     })()
     return () => {
@@ -78,9 +87,26 @@ export default function App() {
 
   switch (state.view) {
     case 'loading':
-      return <p className="p-8 text-center text-slate-500">載入中…</p>
+      return (
+        <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-7 text-center">
+          <span className="text-rose">
+            <ChatIcon />
+          </span>
+          <p role="status" className="text-base text-muted">
+            載入中…
+          </p>
+        </main>
+      )
     case 'fatal':
-      return <p className="mx-auto max-w-md p-8 text-center text-red-700">{state.text}</p>
+      return (
+        <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-7 text-center">
+          <span className="text-danger">{state.kind === 'network' ? <WifiOffIcon size={40} /> : <AlertIcon size={40} />}</span>
+          <h1 className="text-lg font-bold">{state.title}</h1>
+          <p role="alert" className="max-w-sm text-sm leading-relaxed text-danger-ink">
+            {state.text}
+          </p>
+        </main>
+      )
     case 'entry':
       return <EntryPage onEntered={entered} notice={state.notice} />
     case 'room':
